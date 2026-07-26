@@ -1,4 +1,4 @@
-# Chronicle_AIAnalyst# Chronicle — Personal AI Analyst
+# Chronicle — Personal AI Analyst
 
 Chronicle is a local-first personal AI analyst that connects to your real data — Spotify, GitHub, finances, fitness records, journal entries — and tells you what your data says about you that you haven't admitted yet.
 
