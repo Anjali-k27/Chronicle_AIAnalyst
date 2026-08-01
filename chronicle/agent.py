@@ -31,7 +31,7 @@ from pydantic import BaseModel
 from google import genai
 
 # ── Configuration (Session 11.1) ─────────────────────────────────
-GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
+GEMINI_API_KEY = "AIzaSyAKVtrhyv2ycaYikZHv1UIbRHHJFc23ljI"
 MODEL = "gemini-2.5-flash"
 GEMINI_REST_URL = (
     "https://generativelanguage.googleapis.com/v1beta/models/"

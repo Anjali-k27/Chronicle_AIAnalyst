@@ -16,6 +16,16 @@ Permanent from Session 11.1 onward.
 """
 
 # ── Imports (Session 11.1) ────────────────────────────────────────
+from pathlib import Path
+import os
+import socket
+import sys
+
+if __package__ in (None, ""):
+    project_root = Path(__file__).resolve().parent.parent
+    if str(project_root) not in sys.path:
+        sys.path.insert(0, str(project_root))
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import asyncio
@@ -43,6 +53,21 @@ app.add_middleware(
 )
 
 # ── Endpoints (Session 11.1) ──────────────────────────────────────
+
+@app.get("/")
+async def root():
+    """
+    Friendly landing endpoint for the Chronicle API root URL.
+    Prevents the generic FastAPI 404 page when users open the service base URL.
+    """
+    return {
+        "status": "ok",
+        "service": "Chronicle API",
+        "session": "11.1",
+        "docs": "/docs",
+        "health": "/health",
+    }
+
 
 @app.get("/health")
 async def health():
@@ -114,8 +139,31 @@ async def vram_budget(precision: str = "fp16"):
 
 # ── Server Entry Point (Session 11.1) ────────────────────────────
 
+def _port_is_available(port: int) -> bool:
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        try:
+            sock.bind(("0.0.0.0", port))
+            return True
+        except OSError:
+            return False
+
+
+def _resolve_start_port(preferred_port: int = 8000, max_attempts: int = 20) -> int:
+    if _port_is_available(preferred_port):
+        return preferred_port
+
+    for candidate in range(preferred_port + 1, preferred_port + max_attempts + 1):
+        if _port_is_available(candidate):
+            return candidate
+
+    raise RuntimeError("No free local port found for the Chronicle API.")
+
+
 if __name__ == "__main__":
+    preferred_port = int(os.getenv("PORT", "8000"))
+    resolved_port = _resolve_start_port(preferred_port)
+
     print("\n  Chronicle API — Session 11.1")
-    print("  Starting on http://localhost:8000")
-    print("  Swagger UI: http://localhost:8000/docs\n")
-    uvicorn.run(app, host="0.0.0.0", port=8000, reload=False)
+    print(f"  Starting on http://localhost:{resolved_port}")
+    print(f"  Swagger UI: http://localhost:{resolved_port}/docs\n")
+    uvicorn.run(app, host="0.0.0.0", port=resolved_port, reload=False)
